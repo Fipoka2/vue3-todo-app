@@ -78,26 +78,27 @@ export const useTodoStore = defineStore('todo', () => {
   }
 
   const filteredTasks = computed(() => {
-    let result = tasks.value
+    return tasks.value.filter(task => {
 
-    if (filters.value.status) {
-      result = result.filter(task => task.status === filters.value.status)
-    }
-
-
-    if (filters.value.priority) {
-      result = result.filter(task => task.priority === filters.value.priority)
-    }
-
-    if (filters.value.search) {
-      const searchTerm = filters.value.search.toLowerCase()
-      result = result.filter(task => 
-        task.title.toLowerCase().includes(searchTerm) ||
-        (task.description && task.description.toLowerCase().includes(searchTerm))
-      )
-    }
-
-    return result
+      if (filters.value.status && task.status !== filters.value.status) {
+        return false
+      }
+      
+      if (filters.value.priority && task.priority !== filters.value.priority) {
+        return false
+      }
+      
+      if (filters.value.search) {
+        const searchTerm = filters.value.search.toLowerCase()
+        const matchesTitle = task.title.toLowerCase().includes(searchTerm)
+        const matchesDescription = task.description && task.description.toLowerCase().includes(searchTerm)
+        if (!matchesTitle && !matchesDescription) {
+          return false
+        }
+      }
+      
+      return true
+    })
   })
 
   const tasksByStatus = computed(() => {
