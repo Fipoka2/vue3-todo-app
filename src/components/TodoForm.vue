@@ -82,10 +82,25 @@ const formData = reactive<CreateTaskData>({
   priority: 'medium'
 })
 
+const checkUniqueTitle = (title: string): boolean => {
+  const tasks = todoStore.tasks
+  const titleLower = title.trim().toLowerCase()
+  
+  if (props.isEditing && props.task) {
+    return !tasks.some(task => 
+      task.id !== props.task!.id && 
+      task.title.trim().toLowerCase() === titleLower
+    )
+  } else {
+    return !tasks.some(task => task.title.trim().toLowerCase() === titleLower)
+  }
+}
+
 const titleRules = [
   (v: string) => !!v || 'Название обязательно для заполнения',
   (v: string) => (v && v.length >= 2) || 'Название должно содержать минимум 2 символа',
-  (v: string) => (v && v.length <= 100) || 'Название не должно превышать 100 символов'
+  (v: string) => (v && v.length <= 100) || 'Название не должно превышать 100 символов',
+  (v: string) => checkUniqueTitle(v) || 'Задача с таким названием уже существует'
 ]
 
 const statusOptions = TASK_STATUSES.map(status => ({
